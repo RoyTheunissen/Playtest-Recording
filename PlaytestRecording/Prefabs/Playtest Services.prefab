@@ -141,6 +141,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   applicationName: TestApplication
+  startRecordingImmediately: 1
+  includeFaceCamByDefault: 1
   recordingService: {fileID: 114000012840799542}
   hostingService: {fileID: 114000014034690676}
 --- !u!114 &114000012840799542

@@ -7,7 +7,9 @@ namespace RoyTheunissen.PlaytestRecording
     /// <summary>
     /// Manages data recording of playtests. Also works in-editor but this is disabled by default
     /// to prevent the server from being cluttered with editor footage. Define 
-    /// GATHER_PLAYTEST_DATA_IN_EDITOR if you want to temporarily re-enable this feature.
+    /// GATHER_PLAYTEST_DATA_IN_EDITOR if you want to temporarily re-enable this feature. Note 
+    /// that you can have the game start recording automatically but you can disable this so you 
+    /// can prompt the user first. The same goes for the face cam.
     /// </summary>
     public sealed class PlaytestService : MonoBehaviour 
     {
@@ -16,6 +18,14 @@ namespace RoyTheunissen.PlaytestRecording
 
         [SerializeField]
         private string applicationName = "TestApplication";
+
+        [Tooltip("Set this to false if you want to ask users for permission first.")]
+        [SerializeField]
+        private bool startRecordingImmediately = false;
+
+        [Tooltip("I advise to disable this by default. Ask players first!")]
+        [SerializeField]
+        private bool includeFaceCamByDefault = false;
 
         [Space]
         [SerializeField]
@@ -63,8 +73,14 @@ namespace RoyTheunissen.PlaytestRecording
             currentSessionData = new PlaytestSessionData();
             currentSessionData.StartSession();
 
+            if (startRecordingImmediately)
+                StartRecording(includeFaceCamByDefault);
+        }
+
+        public void StartRecording(bool recordFaceCam)
+        {
             string filePath = currentSessionData.DataPath + FootageName;
-            recordingService.StartRecording(filePath);
+            recordingService.StartRecording(filePath, recordFaceCam);
         }
 
         private void StopCurrentPlayTestSession(Action completionCallback = null)

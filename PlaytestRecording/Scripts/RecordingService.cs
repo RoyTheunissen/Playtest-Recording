@@ -18,7 +18,8 @@ namespace RoyTheunissen.PlaytestRecording
         private const string ExtensionPrefix = ".";
         private const string VideoFormat = "flv";
 
-        private const string ArgumentsFormat = " --startrecording \"{0}\" --runinbackground";
+        private const string ArgumentsFormat = " --startrecording \"{0}\" --runinbackground {1}";
+        private const string ArgumentsForFacecam = "--scene \"With Facecam\"";
 
         private string RecordingApplicationDirectoryPath
         {
@@ -56,12 +57,14 @@ namespace RoyTheunissen.PlaytestRecording
         /// Starts recording to the specified file.
         /// </summary>
         /// <param name="path">The file name. May include a directory but no extension.</param>
-        public void StartRecording(string path)
+        public void StartRecording(string path, bool includeFaceCam = false)
         {
             ProcessStartInfo startInfo = new ProcessStartInfo(RecordingApplicationPath);
             startInfo.UseShellExecute = true;
             startInfo.WorkingDirectory = RecordingApplicationDirectoryPath;
-            startInfo.Arguments = string.Format(ArgumentsFormat, path);
+
+            string faceCamArguments = includeFaceCam ? ArgumentsForFacecam : string.Empty;
+            startInfo.Arguments = string.Format(ArgumentsFormat, path, faceCamArguments);
 
             try
             {
