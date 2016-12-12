@@ -18,6 +18,11 @@ namespace RoyTheunissen.PlaytestRecording
 
         [SerializeField]
         private string applicationName = "TestApplication";
+        public string ApplicationName { get { return applicationName; } }
+
+        [SerializeField]
+        private string applicationVersion = "alpha";
+        public string ApplicationVersion { get { return applicationVersion; } }
 
         [Tooltip("Set this to false if you want to ask users for permission first.")]
         [SerializeField]
