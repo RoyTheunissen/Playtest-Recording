@@ -13,12 +13,15 @@ namespace RoyTheunissen.PlaytestRecording
         [SerializeField]
         private string targetUrl = "http://example.com/playtests/";
 
+        public delegate void UploadProgressHandler(float fraction);
+
         private string UploadUrl
         {
             get { return targetUrl + "Upload.php"; }
         }
 
-        public void Upload(string filePath, Action completionCallback = null)
+        public void Upload(string filePath,
+            Action completionCallback = null, UploadProgressHandler progressCallback = null)
         {
             byte[] data = File.ReadAllBytes(filePath);
             string url = UploadUrl;
@@ -29,12 +32,19 @@ namespace RoyTheunissen.PlaytestRecording
 
             Debug.Log("Going to wait for playtest data upload completion now...");
 
-            StartCoroutine(WwwResultRoutine(uploadRequest, completionCallback));
+            StartCoroutine(WwwResultRoutine(uploadRequest, completionCallback, progressCallback));
         }
 
-        private IEnumerator WwwResultRoutine(WWW www, Action completionCallback)
+        private IEnumerator WwwResultRoutine(
+            WWW www, Action completionCallback, UploadProgressHandler progressCallback)
         {
-            yield return www;
+            while (!www.isDone)
+            {
+                yield return null;
+
+                if (progressCallback != null)
+                    progressCallback(www.uploadProgress);
+            }
 
             if (!string.IsNullOrEmpty(www.error))
                 Debug.LogError("Playtest data upload error: " + www.error);

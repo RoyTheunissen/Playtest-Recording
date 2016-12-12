@@ -42,6 +42,31 @@ namespace RoyTheunissen.PlaytestRecording
         [NonSerialized]
         private PlaytestSessionData currentSessionData;
 
+        public delegate void DataUploadStartedHandler(PlaytestService service);
+        public event DataUploadStartedHandler DataUploadStartedEvent;
+        private void DispatchDataUploadStartedEvent()
+        {
+            if (DataUploadStartedEvent != null)
+                DataUploadStartedEvent(this);
+        }
+
+        public delegate void DataUploadProgressedHandler(
+            PlaytestService service, float fraction);
+        public event DataUploadProgressedHandler DataUploadProgressedEvent;
+        private void DispatchDataUploadProgressedEvent(float fraction)
+        {
+            if (DataUploadProgressedEvent != null)
+                DataUploadProgressedEvent(this, fraction);
+        }
+
+        public delegate void DataUploadCompletedHandler(PlaytestService service);
+        public event DataUploadCompletedHandler DataUploadCompletedEvent;
+        private void DispatchDataUploadCompletedEvent()
+        {
+            if (DataUploadCompletedEvent != null)
+                DataUploadCompletedEvent(this);
+        }
+
 #if !UNITY_EDITOR || GATHER_PLAYTEST_DATA_IN_EDITOR
         private bool hasStartedUploading;
         private bool hasFinishedUploading;
@@ -63,11 +88,18 @@ namespace RoyTheunissen.PlaytestRecording
 
             // Otherwise start uploading the playtest session.
             hasStartedUploading = true;
-            StopCurrentPlayTestSession(HandlePlaytestDataUploaded);
+            StopCurrentPlayTestSession(HandleDataUploaded, HandleDataUploadProgress);
         }
 
-        private void HandlePlaytestDataUploaded()
+        private void HandleDataUploadProgress(float fraction)
         {
+            DispatchDataUploadProgressedEvent(fraction);
+        }
+
+        private void HandleDataUploaded()
+        {
+            DispatchDataUploadCompletedEvent();
+
             hasFinishedUploading = true;
             Application.Quit();
         }
@@ -84,11 +116,15 @@ namespace RoyTheunissen.PlaytestRecording
 
         public void StartRecording(bool recordFaceCam)
         {
+            if (currentSessionData == null)
+                return;
+
             string filePath = currentSessionData.DataPath + FootageName;
             recordingService.StartRecording(filePath, recordFaceCam);
         }
 
-        private void StopCurrentPlayTestSession(Action completionCallback = null)
+        private void StopCurrentPlayTestSession(Action completionCallback = null,
+            HostingService.UploadProgressHandler progressCallback = null)
         {
             // Stop gathering data.
             string recordingFileName = recordingService.StopRecording();
@@ -101,8 +137,10 @@ namespace RoyTheunissen.PlaytestRecording
             string zipPath = ZipUtility.Zip(currentSessionData.DataPath + zipName,
                 recordingFileName, sessionDataFileName);
 
+            DispatchDataUploadStartedEvent();
+
             // Upload the file to a webserver.
-            hostingService.Upload(zipPath, completionCallback);
+            hostingService.Upload(zipPath, completionCallback, progressCallback);
         }
     }
 }
