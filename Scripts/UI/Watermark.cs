@@ -9,6 +9,8 @@ namespace RoyTheunissen.PlaytestRecording.UI
     /// </summary>
     public sealed class Watermark : MonoBehaviour 
     {
+        private const int ShaLength = 12;
+
         [Space]
         [SerializeField]
         private Text text;
@@ -20,7 +22,8 @@ namespace RoyTheunissen.PlaytestRecording.UI
             BuildInformation info = BuildInformation.Current;
 
             text.text = string.Format(format,
-                info.Addressee, info.ApplicationName, info.VersionName, info.Sha);
+                info.Addressee, info.ApplicationName, info.VersionName,
+                info.Sha.Substring(0, ShaLength));
         }
     }
 }
