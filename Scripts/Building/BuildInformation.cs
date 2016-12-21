@@ -19,8 +19,10 @@ namespace RoyTheunissen.PlaytestRecording.Building
         private const string Extension = ".json";
         private const string FileName = "BuildInformation";
 
+#if UNITY_EDITOR
         private static readonly string AbsolutePath
             = Application.dataPath + "/PlaytestRecording/Resources/" + FileName + Extension;
+#endif // UNITY_EDITOR
 
         private static readonly string ResourcesPath = FileName;
 
