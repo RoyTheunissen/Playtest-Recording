@@ -2,6 +2,8 @@
     "applicationName": "Test Application",
     "versionName": "v1.0.0",
     "addressee": "Roy Theunissen",
-    "sha": "00000000000",
-    "uniqueBuildIdentifier": 0
+    "sha": "66285263cf79521cb53578c37b9240d6a57a157e",
+    "buildTime": "12/21/2016 12:04:07 AM",
+    "buildNumber": "0",
+    "uniqueBuildIdentifier": "3e99a0f3-ee67-4bca-a33b-bf49372c1a3b"
 }

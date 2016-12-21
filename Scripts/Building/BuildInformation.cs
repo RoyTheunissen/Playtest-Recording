@@ -16,8 +16,6 @@ namespace RoyTheunissen.PlaytestRecording.Building
     [Serializable]
     public class BuildInformation
     {
-        private const int ShaLength = 12;
-
         private const string Extension = ".json";
         private const string FileName = "BuildInformation";
 
@@ -47,6 +45,8 @@ namespace RoyTheunissen.PlaytestRecording.Building
             get { return addressee; }
         }
 
+        [Space]
+        [ReadOnly]
         [SerializeField]
         private string sha;
         public string Sha
@@ -54,16 +54,44 @@ namespace RoyTheunissen.PlaytestRecording.Building
             get { return sha; }
         }
 
+        [ReadOnly]
         [SerializeField]
-        private int uniqueBuildIdentifier;
-        public int UniqueBuildIdentifier
+        private string buildTime;
+        public DateTime BuildTime
+        {
+            get { return DateTime.Parse(buildTime); }
+            set { buildTime = value.ToString(); }
+        }
+
+        [ReadOnly]
+        [SerializeField]
+        private string buildNumber;
+        public int BuildNumber
+        {
+            get { return int.Parse(buildNumber); }
+            set { buildNumber = value.ToString(); }
+        }
+
+        [ReadOnly]
+        [SerializeField]
+        private string uniqueBuildIdentifier;
+        public string UniqueBuildIdentifier
         {
             get { return uniqueBuildIdentifier; }
         }
 
-        public void UpdateSha()
+        public void FillInAutomaticValues()
         {
-            sha = GitUtilities.Sha.Substring(0, ShaLength);
+            sha = GitUtilities.Sha;
+
+            BuildTime = DateTime.Now;
+            BuildNumber++;
+            uniqueBuildIdentifier = Guid.NewGuid().ToString();
+        }
+
+        public void Save()
+        {
+            Current = this;
         }
 
         public static BuildInformation Current
