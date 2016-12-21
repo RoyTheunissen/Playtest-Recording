@@ -17,6 +17,15 @@ namespace RoyTheunissen.PlaytestRecording.Building.Editor
         private const string BuildOptionsKey = KeyPrefix + "BuildOptions";
         private const string BuildPathKey = KeyPrefix + "BuildPath";
 
+        private static readonly Dictionary<string, string> AliasesByParameters
+            = new Dictionary<string, string>()
+            {
+                { "{0}", "{application}" },
+                { "{1}", "{version}" },
+                { "{2}", "{buildnumber}" },
+                { "{3}", "{addressee}" },
+            };
+
         private List<FieldInfo> fieldsInternal;
         private List<FieldInfo> fields
         {
@@ -135,13 +144,19 @@ namespace RoyTheunissen.PlaytestRecording.Building.Editor
 
         private string GetSuggestedBuildName()
         {
-            return "{0} {1} - {2} - ({3})";
+            return "{application} {version} - {buildnumber} - ({addressee})";
         }
 
         private string GetFormattedBuildName()
         {
+            string format = buildPath;
+
+            // Replace all the parameter aliases by their actual parameter.
+            foreach (var aliasByParameter in AliasesByParameters)
+                format = format.Replace(aliasByParameter.Value, aliasByParameter.Key);
+
             // Fill in the chosen path with some dynamic information.
-            return string.Format(buildPath,
+            return string.Format(format,
                 buildInformation.ApplicationName, buildInformation.VersionName,
                 buildInformation.BuildNumber, buildInformation.Addressee);
         }
