@@ -1,4 +1,5 @@
 using Ionic.Zip;
+using RoyTheunissen.PlaytestRecording.Building;
 using System;
 using UnityEngine;
 
@@ -13,16 +14,8 @@ namespace RoyTheunissen.PlaytestRecording
     /// </summary>
     public sealed class PlaytestService : MonoBehaviour 
     {
-        private const string ZipNameFormat = "PlayTest_{0}_{1}_{2}_{3}";
+        private const string ZipNameFormat = "PlayTest_{0}_{1}_{2}_{3}_{4}";
         private const string FootageName = "Footage";
-
-        [SerializeField]
-        private string applicationName = "TestApplication";
-        public string ApplicationName { get { return applicationName; } }
-
-        [SerializeField]
-        private string applicationVersion = "alpha";
-        public string ApplicationVersion { get { return applicationVersion; } }
 
         [Tooltip("Set this to false if you want to ask users for permission first.")]
         [SerializeField]
@@ -130,10 +123,13 @@ namespace RoyTheunissen.PlaytestRecording
             string recordingFileName = recordingService.StopRecording();
             string sessionDataFileName = currentSessionData.StopSession();
 
+            // Get the build information.
+            BuildInformation buildInfo = BuildInformation.Current;
+
             // Save the compressed archive to a file.
-            string zipName = string.Format(ZipNameFormat, applicationName,
-                currentSessionData.Device.name,
-                currentSessionData.User.name, currentSessionData.Id);
+            string zipName = string.Format(ZipNameFormat, buildInfo.ApplicationName,
+                buildInfo.BuildNumber, currentSessionData.Device.name,
+                buildInfo.Addressee, currentSessionData.Id);
             string zipPath = ZipUtility.Zip(currentSessionData.DataPath + zipName,
                 recordingFileName, sessionDataFileName);
 
