@@ -12,9 +12,8 @@ namespace RoyTheunissen.PlaytestRecording.Building.Editor
     /// </summary>
     public class BuildWindow : EditorWindow
     {
-        private const string KeyPrefix = "BuildWindow/";
+        public const string KeyPrefix = "BuildWindow/";
         private const string BuildTargetKey = KeyPrefix + "BuildTarget";
-        private const string BuildOptionsKey = KeyPrefix + "BuildOptions";
         private const string BuildPathKey = KeyPrefix + "BuildPath";
 
         private static readonly Dictionary<string, string> AliasesByParameters
@@ -59,18 +58,6 @@ namespace RoyTheunissen.PlaytestRecording.Building.Editor
             set
             {
                 EditorPrefs.SetInt(BuildTargetKey, (int)value);
-            }
-        }
-
-        private BuildOptions buildOptions
-        {
-            get
-            {
-                return (BuildOptions)EditorPrefs.GetInt(BuildOptionsKey);
-            }
-            set
-            {
-                EditorPrefs.SetInt(BuildOptionsKey, (int)value);
             }
         }
 
@@ -170,7 +157,12 @@ namespace RoyTheunissen.PlaytestRecording.Building.Editor
             // Figure out the build options.
             BuildPlayerOptions buildOptions = new BuildPlayerOptions();
 
-            buildOptions.options = this.buildOptions;
+            UnityEngine.Debug.LogFormat("Build options are {0}({1}), {2}({3}) and {4}({5})",
+                SerializableBuildOptions.Flags, (int)SerializableBuildOptions.Flags,
+                BuildOptions.Development, (int)BuildOptions.Development,
+                0 | BuildOptions.Development, (int)(0 | BuildOptions.Development));
+
+            buildOptions.options = SerializableBuildOptions.Flags;
             buildOptions.target = buildTarget;
             buildOptions.locationPathName = GetFormattedBuildName();
 
@@ -226,6 +218,31 @@ namespace RoyTheunissen.PlaytestRecording.Building.Editor
             EditorGUILayout.EndVertical();
         }
 
+        private void DisplayBuildOptionsGui()
+        {
+            BuildTarget oldBuildTarget = buildTarget;
+            buildTarget = (BuildTarget)EditorGUILayout.EnumPopup("Target", buildTarget);
+
+            // Change the build path if you change targets that have a different extension.
+            TranslatePathIfNecessary(oldBuildTarget, buildTarget);
+
+            SerializableBuildOptions.DevelopmentBuild = EditorGUILayout.Toggle(
+                "Development Build", SerializableBuildOptions.DevelopmentBuild);
+            SerializableBuildOptions.AllowScriptDebugging = EditorGUILayout.Toggle(
+                "Allow Script Debugging", SerializableBuildOptions.AllowScriptDebugging);
+
+            EditorGUILayout.Space();
+
+            // Also allow the user to specify a path with a nice browse button next to it.
+            EditorGUILayout.BeginHorizontal();
+            {
+                buildPath = EditorGUILayout.TextField("Path", buildPath);
+                if (GUILayout.Button("...", EditorStyles.miniButton, GUILayout.Width(22)))
+                    BrowseToTargetPath();
+            }
+            EditorGUILayout.EndHorizontal();
+        }
+
         private void BrowseToTargetPath()
         {
             string extension = GetTargetExtension(buildTarget);
@@ -278,25 +295,9 @@ namespace RoyTheunissen.PlaytestRecording.Building.Editor
 
             DisplayBuildInformationGui();
 
-            // Show dropdowns to adjust the build settings.
             EditorGUILayout.Space();
 
-            BuildTarget oldBuildTarget = buildTarget;
-            buildTarget = (BuildTarget)EditorGUILayout.EnumPopup("Target", buildTarget);
-
-            // Change the build path if you change targets that have a different extension.
-            TranslatePathIfNecessary(oldBuildTarget, buildTarget);
-
-            buildOptions = (BuildOptions)EditorGUILayout.EnumMaskPopup("Options", buildOptions);
-
-            // Also allow the user to specify a path with a nice browse button next to it.
-            EditorGUILayout.BeginHorizontal();
-            {
-                buildPath = EditorGUILayout.TextField("Path", buildPath);
-                if (GUILayout.Button("...", EditorStyles.miniButton, GUILayout.Width(22)))
-                    BrowseToTargetPath();
-            }
-            EditorGUILayout.EndHorizontal();
+            DisplayBuildOptionsGui();
 
             EditorGUILayout.Space();
 
