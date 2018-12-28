@@ -111,8 +111,7 @@ namespace RoyTheunissen.PlaytestRecording.Building.Editor
         {
             switch (buildTarget)
             {
-                case BuildTarget.StandaloneOSXUniversal:
-                case BuildTarget.StandaloneOSXIntel:
+                case BuildTarget.StandaloneOSX:
                     return "app";
                 case BuildTarget.StandaloneWindows:
                 case BuildTarget.StandaloneWindows64:
