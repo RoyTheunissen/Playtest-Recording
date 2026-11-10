@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 
 namespace RoyTheunissen.PlaytestRecording
 {
@@ -28,28 +29,31 @@ namespace RoyTheunissen.PlaytestRecording
             WWWForm form = new WWWForm();
             form.AddBinaryData("fileToUpload", data, Path.GetFileNameWithoutExtension(filePath));
             form.AddField("submit", "Upload File");
-            WWW uploadRequest = new WWW(url, form);
+            UnityWebRequest uploadRequest = UnityWebRequest.Post(url, form);
+            uploadRequest.SendWebRequest();
 
             Debug.Log("Going to wait for playtest data upload completion now...");
 
-            StartCoroutine(WwwResultRoutine(uploadRequest, completionCallback, progressCallback));
+            StartCoroutine(UploadResultRoutine(uploadRequest, completionCallback, progressCallback));
         }
 
-        private IEnumerator WwwResultRoutine(
-            WWW www, Action completionCallback, UploadProgressHandler progressCallback)
+        private IEnumerator UploadResultRoutine(
+            UnityWebRequest request, Action completionCallback, UploadProgressHandler progressCallback)
         {
-            while (!www.isDone)
+            while (!request.isDone)
             {
                 yield return null;
 
                 if (progressCallback != null)
-                    progressCallback(www.uploadProgress);
+                    progressCallback(request.uploadProgress);
             }
 
-            if (!string.IsNullOrEmpty(www.error))
-                Debug.LogError("Playtest data upload error: " + www.error);
+            if (request.result != UnityWebRequest.Result.Success)
+                Debug.LogError("Playtest data upload error: " + request.error);
             else
-                Debug.Log("Playtest data upload completed: " + www.text);
+                Debug.Log("Playtest data upload completed: " + request.downloadHandler.text);
+
+            request.Dispose();
 
             if (completionCallback != null)
                 completionCallback();

@@ -113,7 +113,9 @@ namespace RoyTheunissen.PlaytestRecording
                 result.processorFrequency = SystemInfo.processorFrequency;
                 result.processorType = SystemInfo.processorType;
 
-                result.supportsImageEffects = SystemInfo.supportsImageEffects;
+                // NOTE: Image effects are always supported nowadays and Unity deprecated the check. The field is
+                // kept so that the session data format stays the same.
+                result.supportsImageEffects = true;
                 result.supportsInstancing = SystemInfo.supportsInstancing;
                 result.supportsMotionVectors = SystemInfo.supportsMotionVectors;
                 result.supportsRawShadowDepthSampling = SystemInfo.supportsRawShadowDepthSampling;
